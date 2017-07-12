@@ -31,8 +31,12 @@ def setTopic(person, topic, content):
     convos[person.id][topic] = content
 
 def getTopic(person, topic):
-    if topic in convos[person.id]
+    if topic in convos[person.id]:
         return convos[person.id][topic]
+
+def removeTopic(person. topic):
+    if topic in convos[person.id]:
+        del convos[person.id][topic]
 
 def setReply(person, reply):
     setTopic(person, "reply", reply)
