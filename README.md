@@ -1,0 +1,1 @@
+Discord chatbot for the World of Warcraft Guild Unified-Madoran
