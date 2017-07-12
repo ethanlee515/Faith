@@ -2,7 +2,7 @@ import convo
 import asyncio
 import random
 import FaithData
-import tierInfo
+import tier
 import Armory
 from misc import *
 from datetime import datetime
@@ -72,28 +72,28 @@ async def tierCount(message):
     loc1 = m.find("does")
     loc2 = m.find("have")
     nameIn = m[loc1+5:loc2-1].lower()
-    name = tierInfo.getName(nameIn)
+    name = tier.getName(nameIn)
     if name == None:
         await faith.send_message(message.channel, "Player not found.")
         return
 
-    slot = tierInfo.getSlot(m)
+    slot = tier.getSlot(m)
     if slot:
         await faith.send_message(message.channel,
                     name.capitalize() + " has "
-                    + tierInfo.pieceDesc(name, slot) + " " + slot + ".")
+                    + tier.pieceDesc(name, slot) + " " + slot + ".")
     else:
         count = 0
         for s in Armory.slots:
-            if tierInfo.rec[name][s] != None:
+            if tier.rec[name][s] != None:
                 count += 1
         await faith.send_message(message.channel,
                 name.capitalize() + " has %d tier pieces." % count)
         for s in Armory.slots:
-            p = tierInfo.rec[name][s]
+            p = tier.rec[name][s]
             if p != None:
                 await faith.send_message(message.channel,
-                        s + ": " + tierInfo.pieceDesc(name, s))
+                        s + ": " + tier.pieceDesc(name, s))
 
 async def newRaider(message):
     await faith.send_message(message.channel, "NYI")
