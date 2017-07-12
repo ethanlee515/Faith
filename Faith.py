@@ -30,7 +30,7 @@ convoFlow = (check.isMessage, [
             (check.participants, react.participants)
         ]),
         (check.suggestion, react.suggestion),
-        (check.tier, [
+        (check.mentionsTier, [
             (check.wonPiece, react.wonPiece),
             (check.undoWin, react.undoWin),
             (check.deletePiece, react.deletePiece),
