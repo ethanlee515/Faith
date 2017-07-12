@@ -27,14 +27,15 @@ def setActive(person):
 def setPassive(person):
     setState(person, PASSIVE)
 
-def addTopic(person, topic, content):
+def setTopic(person, topic, content):
     convos[person.id][topic] = content
 
 def getTopic(person, topic):
-    return convos[person.id][topic]
+    if topic in convos[person.id]
+        return convos[person.id][topic]
 
 def setReply(person, reply):
-    addTopic(person, "reply", reply)
+    setTopic(person, "reply", reply)
 
 def replyCheck(person):
     if "reply" not in convos[person.id]:
