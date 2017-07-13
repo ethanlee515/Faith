@@ -1,5 +1,5 @@
 import convo
-import tier
+import Tier
 import asyncio
 from misc import *
 
@@ -25,72 +25,112 @@ def silence(message):
 def log(message):
     return ('warcraftlogs.com' in message.content.lower()
         or all(key in message.content.lower()
-            for key in ['analy', 'log', 'last']))
+            for key in ['analy', 'log', 'last'])
+        or convo.getTopic(message.author, "log") != None)
 
 def closeLog(message):
-    pass
+    m = message.content.lower()
+    return (all(key in m for key in ["done with", "log"])
+            or all(key in m for key in ["close", "log"]))
 
 def potion(message):
-    pass
+    return "pot" in message.content.lower()
 
 def noPot(message):
-    pass
+    return (any(key in message.content.lower()
+                for key in ["t pot", "t use pot",
+                            "no pot", "t use any pot"])
+                and getNum(message.content.lower()))
 
 def potCount(message):
-    pass
+    return (any(key in message.content.lower()
+                for key in ["count", "usage"])
+            and getNum(message.content.lower()))
 
 def potStats(message):
-    pass
+    return any(key in message.content.lower()
+                for key in ["night", "raid", "stat", "analy"])
 
 def rune(message):
-    pass
+    return 'rune' in message.content.lower()
 
 def noRune(message):
-    pass
+    return (any(key in message.content.lower()
+                for key in ["t rune", "t use", "no rune"])
+                and getNum(message.content.lower()))
 
 def runeCount(message):
-    pass
+    return (any(key in message.content.lower()
+                for key in ["usage", "count"])
+            and getNum(message.content.lower()))
 
 def runeStats(message):
-    pass
+    return any(key in message.content.lower()
+        for key in ["night", "raid", "stat", "analy"])
 
 def refreshLog(message):
-    pass
+    return 'refresh' in message.content.lower()
 
 def newLog(message):
-    pass
+    return ('warcraftlogs.com' in message.content.lower()
+        or all(key in message.content.lower()
+            for key in ['analy', 'log', 'last']))
 
 def pull(message):
-    pass
+    return any(key in message.content.lower() for key in ["pull", "attempt"])
 
 def pullDesc(message):
-    pass
+    return getNum(message.content)
 
 def pullNum(message):
-    pass
+    return "how many" in message.content.lower()
 
 def participants(message):
-    pass
+    return any(key in message.content.lower()
+            for key in ["who were there", "member",
+                    "participat"])
 
 def suggestion(message):
     return 'suggest' in message.content.lower()
 
 def mentionsTier(message):
-    return 'tier' in message.content.lower()
+    return 'tier' in message.content.lower() or Tier.currentRaid != None
 
 def wonPiece(message):
-    return (tier.getSlot(message.content)
-        and tier.extractPiece(message.content))
+    return (Tier.getSlot(message.content)
+        and Tier.extractPiece(message.content)
+        and any(key in message.content.lower() for
+                key in ["won", ":", "loot"]))
 
 def undoWin(message):
-    pass
+    return any(key in getTokens(message.content.lower())
+            for key in ["scratch", "scrap", "undo"])
+
+def redoWin(message):
+    return any(key in getTokens(message.content.lower())
+            for key in ["unscratch", "unscrap", "redo"])
 
 def deletePiece(message):
-    pass
+    m = message.content.lower()
+    return (Tier.getSlot(m) and
+            any(key in getTokens(m)
+                for key in ["delete", "remove", "scrap", "scratch"])
+            and ("'s" in m or "from" in m))
 
 def tierCount(message):
     m = message.content.lower()
-    return all(key in m for key in ["does", "have"])
+    return (all(key in m for key in ["does", "have"])
+        or all(key in getTokens(m) for key in ["s", "pieces"]))
+
+def raidNight(message):
+    return (all(key in message.content.lower()
+            for key in ["tonight", "raid"])
+            and Tier.currentRaid == None)
+
+def raidEnd(message):
+    return (all(key in message.content.lower()
+            for key in ["end", "raid"])
+            and Tier.currentRaid != None)
 
 def newRaider(message):
     pass
@@ -132,7 +172,8 @@ def statPri(message):
     return ('stat' in m and 'pri' in m) or 'stats' in m
 
 def relic(message):
-    pass
+    return ("relic" in message.content.lower()
+        and getSpec(message.content) != "unknown")
 
 def neck(message):
     m = message.content.lower()
