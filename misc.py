@@ -1,8 +1,9 @@
 import FaithData
 
-def getSpec(message):
+def getSpec(m):
+    m = m.lower()
     for spec in FaithData.specAbbrevs:
-        if any(abbr in message for abbr in FaithData.specAbbrevs[spec]):
+        if any(abbr in m for abbr in FaithData.specAbbrevs[spec]):
             return spec
     return "unknown"
 
@@ -44,3 +45,26 @@ def address(user):
     if user.id in officers:
         return "Officer " + user.display_name
     return user.display_name
+
+def nSuffix(x):
+    if x % 100 not in [11, 12, 13]:
+        d = {1: "st", 2: "nd", 3:"rd"}
+        y = x % 10
+        if y in d:
+            return d[y]
+    return "th"
+
+def getTokens(x):
+    ans = []
+    loc = -1
+    for i in range(len(x)):
+        if loc == -1:
+            if x[i].isalpha():
+                loc = i
+        else:
+            if not x[i].isalpha():
+                ans.append(x[loc:i])
+                loc = -1
+    if loc != -1:
+        ans.append(x[loc:len(x)])
+    return ans
