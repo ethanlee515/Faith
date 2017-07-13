@@ -30,13 +30,16 @@ convoFlow = (check.isMessage, [
             (check.participants, react.participants)
         ]),
         (check.suggestion, react.suggestion),
+        (check.newRaider, react.newRaider),
         (check.mentionsTier, [
             (check.wonPiece, react.wonPiece),
-            (check.undoWin, react.undoWin),
             (check.deletePiece, react.deletePiece),
+            (check.undoWin, react.undoWin),
+            (check.redoWin, react.redoWin),
             (check.tierCount, react.tierCount)
         ]),
-        (check.newRaider, react.newRaider),
+        (check.raidNight, react.raidNight),
+        (check.raidEnd, react.raidEnd),
         (check.gquit, react.gquit),
         (check.introduce, react.introduce),
         (check.creator, react.creator),
@@ -81,4 +84,4 @@ class Faith(discord.Client):
 
 faith = Faith()
 react.faith = faith
-faith.run("MzI4NjM2MDE5ODYxNjE4Njk5.DEWW9Q.XbgSdMAKk6SP81sRk6KYF1mA8pE")
+faith.run("MzI4MjE0NTc0MzQxOTQ3NDEy.DDCj0Q.FEJ9ETa9ct-J0wSn4JePAjWOqww")
