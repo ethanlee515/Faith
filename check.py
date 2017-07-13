@@ -128,8 +128,10 @@ def raidNight(message):
             and Tier.currentRaid == None)
 
 def raidEnd(message):
-    return (all(key in message.content.lower()
-            for key in ["end", "raid"])
+    m = message.content.lower()
+    return ((all(key in m
+                for key in ["end", "raid"])
+            or "raid over" in m)
             and Tier.currentRaid != None)
 
 def newRaider(message):
