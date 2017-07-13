@@ -13,7 +13,7 @@ async def tick(message):
     if 'Faith' in message.content:
         setActive(message.author)
     if 'faith' in message.content and message.author.id not in convos:
-        convos[person.id] = {"attn": 0}
+        convos[message.author.id] = {"attn": 0}
 
 def setState(person, state):
     if person not in convos:
@@ -34,7 +34,7 @@ def getTopic(person, topic):
     if topic in convos[person.id]:
         return convos[person.id][topic]
 
-def removeTopic(person. topic):
+def removeTopic(person, topic):
     if topic in convos[person.id]:
         del convos[person.id][topic]
 
