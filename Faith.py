@@ -44,12 +44,12 @@ convoFlow = (check.isMessage, [
         (check.introduce, react.introduce),
         (check.creator, react.creator),
         (check.function, react.function),
-        (check.define, react.define),
         (check.statPri, react.statPri),
         (check.relic, react.relic),
         (check.neck, react.neck),
         (check.missingEnch, react.missingEnch),
         (check.tour, react.tour),
+        (check.define, react.define),
         (check.musicBot, react.musicBot),
         (check.disengage, react.disengage),
         (check.greet, react.greet),
@@ -84,4 +84,4 @@ class Faith(discord.Client):
 
 faith = Faith()
 react.faith = faith
-faith.run("MzI4MjE0NTc0MzQxOTQ3NDEy.DDCj0Q.FEJ9ETa9ct-J0wSn4JePAjWOqww")
+faith.run("MzI4NjM2MDE5ODYxNjE4Njk5.DEl3aA.2jEbSVBxvHFfadgkWE8yyZvNBDE")
