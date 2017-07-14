@@ -123,9 +123,11 @@ def tierCount(message):
         or all(key in getTokens(m) for key in ["s", "pieces"]))
 
 def raidNight(message):
-    return (all(key in message.content.lower()
-            for key in ["tonight", "raid"])
-            and Tier.currentRaid == None)
+    return ((all(key in message.content.lower()
+                for key in ["tonight", "raid"])
+                and Tier.currentRaid == None)
+            or ("switching to" in message.content.lower()
+                and Tier.currentRaid != None))
 
 def raidEnd(message):
     m = message.content.lower()
