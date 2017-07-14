@@ -4,6 +4,7 @@ import random
 import FaithData
 import Tier
 import Armory
+import Log
 from misc import *
 from datetime import datetime
 
@@ -67,7 +68,7 @@ async def newLog(message):
         if loc == -1:
             night = Log.Night(Log.lastRaid)
         else:
-            log += len('warcraftlogs.com/reports/')
+            loc += len('warcraftlogs.com/reports/')
             night = Log.Night(message.content[loc:loc+16])
     except RuntimeError:
         await faith.send_message(message.channel,
@@ -146,6 +147,9 @@ async def redoWin(message):
     return
 
 async def deletePiece(message):
+    if message.author.id not in officers:
+        await faith.send_message("Only officers can do that.")
+        return
     slot = Tier.getSlot(message.content)
     tokens = getTokens(message.content)
     for i in range(1, len(tokens)):
@@ -227,7 +231,8 @@ async def newRaider(message):
 async def gquit(message):
     faith.send_message(message.channel,
             ("That's too bad. "
-            "I haven't been taught how to update my records for this."))
+            "I'll update my records next time when "
+            "I look everyone up on the Armory."))
 
 async def introduce(message):
     await faith.send_message(message.channel,
