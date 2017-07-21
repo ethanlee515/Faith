@@ -68,3 +68,12 @@ def getTokens(x):
     if loc != -1:
         ans.append(x[loc:len(x)])
     return ans
+
+def getQuoted(s):
+    first = None
+    for i in range(len(s)):
+        if s[i] == '"':
+            if first != None:
+                return s[first+1:i]
+            else:
+                first = i
