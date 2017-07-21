@@ -2,17 +2,28 @@ ACTIVE = 4
 PASSIVE = 3
 
 convos = {}
+admins = []
 
 async def tick(message):
-    #tick
+    if getReply(message.author):
+        rMem = getTopic(message.author, "replyMemSpan")
+        if rMem == 0:
+            clearReply(message.author)
+            removeTopic(message.author, "replyMemSpan")
+        else:
+           setTopic(message.author, "replyMemSpan", rMem - 1)
     for i in list(convos.keys()):
+        if i in admins:
+            continue
         if convos[i]["attn"] <= 0:
             del convos[i]
         else:
             convos[i]["attn"] -= 1
+    if message.author.id in admins:
+        return
     if 'Faith' in message.content:
         setActive(message.author)
-    if 'faith' in message.content and message.author.id not in convos:
+    elif 'faith' in message.content and message.author.id not in convos:
         convos[message.author.id] = {"attn": 0}
 
 def setState(person, state):
@@ -38,16 +49,18 @@ def removeTopic(person, topic):
     if topic in convos[person.id]:
         del convos[person.id][topic]
 
-def setReply(person, reply):
-    setTopic(person, "reply", reply)
+def setReply(person, rc, rr):
+    setTopic(person, "reply", [(rc, rr)])
+    setTopic(person, "replyMemSpan", 3)
 
-def replyCheck(person):
-    if "reply" not in convos[person.id]:
-        return None
-    return convos[person.id]["reply"][0]
+def setReplies(person, replies):
+    setTopic(person, "reply", replies)
+    setTopic(person, "replyMemSpan", 3)
 
 def getReply(person):
-    return convos[person.id]["reply"][1]
+    if person.id not in convos or "reply" not in convos[person.id]:
+        return None
+    return convos[person.id]["reply"]
 
 def clearReply(person):
     if "reply" in convos[person.id]:
@@ -64,9 +77,15 @@ def isActive(person):
         return convos[person.id]["attn"] >= ACTIVE
 
 def grabAttn(person):
+    if person.id in admins:
+        return
     convos[person.id]["attn"] = ACTIVE + 1
 
 async def refreshAttn(message):
     person = message.author
     if person.id in convos and convos[person.id]["attn"] < PASSIVE:
         convos[person.id]["attn"] = PASSIVE
+
+def adminLogin(person):
+    admins.append(person.id)
+    setPassive(person)
