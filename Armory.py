@@ -25,7 +25,6 @@ async def inGuild(name, realm):
         ) as resp:
         if resp.status >= 400:
             return False
-            print("status >= 400 for:" + name + "-" + realm)
         r = await resp.json()
         return ("level" in r and r["level"] == 110 and
                     "guild" in r and r["guild"]["name"] == "Unified")
