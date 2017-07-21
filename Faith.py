@@ -6,6 +6,7 @@ import react
 
 convoFlow = (check.isMessage, [
     (convo.tick, None),
+    (check.invoke, react.adminLogin),
     (check.attn, [
         (check.reply, react.reply),
         (check.silence, react.silence),
@@ -36,10 +37,12 @@ convoFlow = (check.isMessage, [
             (check.deletePiece, react.deletePiece),
             (check.undoWin, react.undoWin),
             (check.redoWin, react.redoWin),
+            (check.trade, react.trade),
+            (check.raidEnd, react.raidEnd),
             (check.tierCount, react.tierCount)
         ]),
         (check.raidNight, react.raidNight),
-        (check.raidEnd, react.raidEnd),
+        (check.updateRec, react.updateRec),
         (check.gquit, react.gquit),
         (check.introduce, react.introduce),
         (check.creator, react.creator),
@@ -50,7 +53,12 @@ convoFlow = (check.isMessage, [
         (check.missingEnch, react.missingEnch),
         (check.tour, react.tour),
         (check.define, react.define),
-        (check.musicBot, react.musicBot),
+        (check.adminLogin, react.adminLogin),
+        (check.musicBot, [
+            (check.playSong, react.playSong),
+            (check.louder, react.louder),
+            (check.quieter, react.quieter)
+        ]),
         (check.disengage, react.disengage),
         (check.greet, react.greet),
         (check.mention, react.mention)
@@ -77,6 +85,8 @@ class Faith(discord.Client):
 
     async def on_ready(self):
         print("Yawn... Good morning?\n")
+        self.music = self.get_channel('299411775835734016')
+        self.vchannel = None
         return
 
     async def on_message(self, message):
