@@ -6,12 +6,28 @@ from misc import *
 def isMessage(message):
     return not message.author.bot
 
+def invoke(message):
+    if not message.author.id == '190494385035673611':
+        return False
+    m = message.content.lower()
+    if not "your creator calls" in m:
+        return False
+    lst = ["ideal", "song", "night",
+        "by the", "blossom", "despair"]
+    c = 0
+    for s in lst:
+        if s in m:
+            c += 1
+    return c >= 2
+
 def attn(message):
     return convo.hasAttn(message.author)
 
 def reply(message):
-    c = convo.replyCheck(message.author)
-    return c(message) if c else False
+    rLst = convo.getReply(message.author)
+    if not rLst:
+        return False
+    return any(r[0](message) for r in rLst)
 
 def silence(message):
     keywords = ["shut up", "go away",
@@ -23,10 +39,8 @@ def silence(message):
                     for key in keywords)
 
 def log(message):
-    return ('warcraftlogs.com' in message.content.lower()
-        or all(key in message.content.lower()
-            for key in ['analy', 'log', 'last'])
-        or convo.getTopic(message.author, "log") != None)
+    return (convo.getTopic(message.author, "log") != None
+        or newLog(message))
 
 def closeLog(message):
     m = message.content.lower()
@@ -72,12 +86,16 @@ def refreshLog(message):
     return 'refresh' in message.content.lower()
 
 def newLog(message):
-    return ('warcraftlogs.com' in message.content.lower()
-        or all(key in message.content.lower()
-            for key in ['analy', 'log', 'last']))
+    m = message.content.lower()
+    return ('warcraftlogs.com' in m
+        or (all(key in m
+            for key in ['log', 'last'])
+        and any(key in m
+            for key in ['raid', 'night'])))
 
 def pull(message):
-    return any(key in message.content.lower() for key in ["pull", "attempt"])
+    return any(key in message.content.lower()
+        for key in ["pull", "attempt"])
 
 def pullDesc(message):
     return getNum(message.content)
@@ -100,7 +118,7 @@ def wonPiece(message):
     return (Tier.getSlot(message.content)
         and Tier.extractPiece(message.content)
         and any(key in message.content.lower() for
-                key in ["won", ":", "loot"]))
+                key in ["won", ":"]))
 
 def undoWin(message):
     return any(key in getTokens(message.content.lower())
@@ -123,9 +141,8 @@ def tierCount(message):
         or all(key in getTokens(m) for key in ["s", "pieces"]))
 
 def raidNight(message):
-    return ((all(key in message.content.lower()
+    return (all(key in message.content.lower()
                 for key in ["tonight", "raid"])
-                and Tier.currentRaid == None)
             or ("switching to" in message.content.lower()
                 and Tier.currentRaid != None))
 
@@ -136,8 +153,18 @@ def raidEnd(message):
             or "raid over" in m)
             and Tier.currentRaid != None)
 
+def updateRec(message):
+    return all(key in message.content.lower()
+                for key in ["update", "armory"])
+
+def trade(message):
+    return any(t in getTokens(message.content.lower())
+    	    for t in ["gave", "traded"])
+
 def newRaider(message):
-    pass
+    m = message.content.lower()
+    return (all(key in m for key in ["join", "us"])
+    	            or "new raider" in m)
 
 def gquit(message):
     m = message.content.lower()
@@ -157,9 +184,7 @@ def creator(message):
 
 def function(message):
     keywords = ["what can you do",
-                "what else can you do",
-                "!help", "what are you able to do",
-                "what else are you able to do"]
+                "help", "what are you able to do"]
     return any(key in message.content.lower()
                 for key in keywords)
 
@@ -190,8 +215,25 @@ def tour(message):
     keywords = ["tour", "show me around", "show us around"]
     return any(key in message.content.lower() for key in keywords)
 
+def adminLogin(message):
+    if message.author.id not in officers:
+        return False
+    return all(key in message.content.lower()
+    	                for key in ["admin", "login"])
+
 def musicBot(message):
-    pass
+    return (convo.getTopic(message.author, "music") != None
+        or playSong(message))
+
+def playSong(message):
+    m = message.content.lower()
+    return ("play" in m and ("youtube" in m or getQuoted(m)))
+
+def louder(message):
+    return "louder" in message.content.lower()
+
+def quieter(message):
+    return any(key in message.content.lower() for key in ["quieter", "softer"])
 
 def disengage(message):
     if (message.content.lower().startswith('ty')
@@ -216,7 +258,8 @@ def disengage(message):
                 "that's about it", "that's about all",
                 "that is about it", "that is about all",
                 "that should be all", "that should be it",
-                "never mind", "nevermind", "nvm"]
+                "never mind", "nevermind", "nvm",
+                "good night"]
 
     return any(key in message.content.lower()
                     for key in keywords)
