@@ -9,15 +9,18 @@ intros = [("Hi guys! "
             "I'm named Faith because Ethan thinks it's "
             "a beautiful name.")]
 
-capabilities = ("I can answer simple questions about the guild "
-                "and give short tours. I know everyone's stats prio too. "
-                "I'll be able to work as a suggestion box soon as well. "
-                "Let me know what else I can help with!")
+capabilities = ["accept suggestions",
+    "operate the music bot",
+    "give tours", "look up stats prios",
+    "analyze logs", "look up neck enchants",
+    "keep track of loot",
+    "help you perform better in raids (soon)",
+    "tell you about random things"]
 
 tourScript = ("Alright! Let me show you around! "
         "We are already on our discord server. "
         "We also have a very active Facebook group called "
-        "\"Madoran's Unified\" at "
+        "\"Unified Guild\" at "
         "http://fb.com/groups/unifiedmadoran/. "
         "The Orange and Legendary ranks in the guild are our "
         "officers who can help you with any questions I'm unable "
@@ -51,7 +54,7 @@ definitions = {"Unified":
                  "directly. I've learned a lot from him."),
                "Facebook":
                 ("We have an active guild Facebook group. It's "
-                 "called \"Madoran's Unified\". Here's the link: "
+                 "called \"Unified Guild\". Here's the link: "
                  "http://fb.com/groups/unifiedmadoran/"),
                "Danny":
                 ("Lord Yaois is our guild master and raid leader. "
