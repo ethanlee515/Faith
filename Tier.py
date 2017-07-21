@@ -5,8 +5,7 @@ import json
 import pprint
 from misc import *
 
-currentRaid = None #REALLY should be None.
-#Setting to heroic as a hack for missing functionality.
+currentRaid = None
 
 rec = eval(open("tierInfo.dat", "r").read())
 
@@ -25,7 +24,7 @@ nickname = {"sawbones": "asawbones",
             "ezme": "ezmë",
             "opd": "opdhealer",
             "op": "opdhealer",
-            "deadeye": "deadeyedaisy",
+            "daisy": "deadeyedaisy",
             "sharla": "sharlá",
             "danny": "yaois"}
 
@@ -39,10 +38,12 @@ def getIL(piece):
 def overWrite(p1, p2):
     if p2 == None:
         return True
-    return getIL(p1) > getIL(p2)
+    return getIL(p1) >= getIL(p2)
 
 async def addPlayer(pName):
     r = pName.lower()
+    if r in rec:
+        raise RuntimeError
     rec[r] = await Armory.getTierPieces(r) #this COULD error
     await save()
 
@@ -73,6 +74,13 @@ def winIssues(name, slot, item):
                         % (tierCount, tfCount))
     return ""
 
+def winStr(name, slot, piece):
+    issues = winIssues(name, slot, piece)
+    s = name.capitalize() + " won " + pToS(piece) + " " + slot + "."
+    if issues:
+        s += " " + issues
+    return s
+
 async def award(names, slot, piece):
     actions = []
     for name in names:
@@ -89,6 +97,10 @@ async def forceOverwrite(name, slot, piece):
     await save()
     return pToS(oldpiece)
 
+def revertStr(name, slot, oldpiece, newpiece):
+    return (name.capitalize() + "'s " + pToS(newpiece) + " " + slot +
+            " has been reverted back to " + pToS(oldpiece))
+
 async def undo():
     if len(undoHistory) == 0:
         return []
@@ -96,10 +108,16 @@ async def undo():
     lst = undoHistory.pop()
     for (name, slot, oldpiece, newpiece) in lst:
         rec[name][slot] = oldpiece
-        undone.append(name.capitalize() + "'s " + pToS(newpiece) + " " + slot +
-            " has been reverted back to " + pToS(oldpiece))
+        undone.append(revertStr(name, slot, oldpiece, newpiece))
     await save()
     return undone
+
+def searchHistory(name):
+    for i in range(len(undoHistory)-1, -1, -1):
+        r = undoHistory[i]
+        for h in r:
+            if name == h[0]:
+                return h
 
 def getName(nameIn):
     if nameIn == "":
@@ -109,25 +127,30 @@ def getName(nameIn):
         return nickname[nameIn]
     if nameIn in rec.keys():
         return nameIn
+    #deal with clashes
     for k in rec:
         if k.startswith(nameIn):
             return k
+    #deal with mid-name strings
     return None
 
 slotKeys = {
     "head": ["head", "helm"],
-    "shoulder": ["shoulder"],
-    "back": ["back", "cloak"],
+    "shoulder": ["shoulder", "shoulders"],
+    "back": ["back", "cloak", "cape"],
     "chest": ["chest"],
-    "hands": ["hand", "gauntlet", "gloves"],
-    "legs": ["legs", "legging", "pants"]
+    "hands": ["hand", "hands",
+        "gauntlet", "gauntlets",
+        "glove", "gloves"],
+    "legs": ["legs", "legging",
+            "leggings", "pants"]
 }
 
 def getSlot(m):
-    m = m.lower()
+    tl = getTokens(m.lower())
     for k, v in slotKeys.items():
         for s in v:
-            if s in m:
+            if s in tl:
                 return k
     return None
 
@@ -157,3 +180,34 @@ def extractPiece(m):
         return None
     il = getNum(m)
     return {"from": diff, "IL": il} if il > 0 else {"from": diff}
+
+async def update():
+    for name in list(rec.keys()):
+        print("Updating " + name.capitalize() + "...")
+        try:
+            ti = await Armory.getTierPieces(name)
+        except RuntimeError:
+            del rec[name]
+            continue
+        for s in ti:
+            if overWrite(ti[s], rec[name][s]):
+                rec[name][s] = ti[s]
+    await save()
+
+async def trade(gn, tn):
+    h = searchHistory(gn)
+    if h == None:
+        return [gn.capitalize() +
+        	    " hasn't looted anything."]
+    slot = h[1]
+    rStr = revertStr(gn, slot, h[2], h[3])
+    a1 = (gn, slot, h[3], h[2])
+    rec[gn][slot] = h[2]
+
+    wStr = winStr(tn, slot, h[3])
+    oldpiece = rec[tn][slot]
+    a2 = (tn, slot, oldpiece, h[3])
+    rec[tn][slot] = h[3]
+
+    undoHistory.append([a1, a2])
+    return [rStr, wStr]
