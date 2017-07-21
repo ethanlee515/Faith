@@ -8,7 +8,43 @@ import Log
 from misc import *
 from datetime import datetime
 
-faith = None
+async def playSong(message):
+    c = message.author.voice.voice_channel
+    if c == None:
+        await faith.send_message(message.channel,
+        	    "You need to be in a voice channel.")
+        return
+
+    if faith.vchannel == None:
+        faith.vchannel = await faith.join_voice_channel(c)
+    else:
+        await faith.vchannel.move_to(c)
+
+    m = message.content
+    q = getQuoted(m)
+    if q == None:
+       loc = m.find("youtube")
+       i = loc
+       while i > 0 and m[i-1] != ' ':
+           i -= 1
+       j = loc + 7
+       while j < len(m) and m[j] != ' ':
+           j += 1
+       q = m[i:j]
+    await faith.send_message(faith.music,
+    	    "!summon")
+    await faith.send_message(faith.music,
+    	    "!play " + q)
+    convo.setTopic(message.author, "music", True)
+    return
+
+async def louder(message):
+    await faith.send_message(faith.music,
+    	    "!volume +20")
+
+async def quieter(message):
+    await faith.send_message(faith.music,
+    	    "!volume -20")
 
 async def silence(message):
     await faith.send_message(message.channel,
@@ -17,7 +53,10 @@ async def silence(message):
     convo.endConvo(message.author)
 
 async def reply(message):
-    await convo.getReply(message.author)(message)
+    for r in convo.getReply(message.author):
+        if r[0](message):
+            await r[1](message)
+            return
 
 async def closeLog(message):
     convo.removeTopic(message.author, "log")
@@ -49,13 +88,29 @@ async def potStats(message):
     await faith.send_message(message.channel, "That's all.")
 
 async def noRune(message):
-    await faith.send_message(message.channel, "Runes NYI")
+    night = convo.getTopic(message.author, "log")
+    pull = getNum(message.content)
+    await faith.send_message(message.channel, night.noRuneList(pull - 1))
 
 async def runeCount(message):
-    await faith.send_message(message.channel, "Runes NYI")
+    pull = getNum(message.content)
+    night = convo.getTopic(message.author, "log")
+    await faith.send_message(message.channel,
+        "Counting the rune usage for pull #%d..." % pull)
+    for s in night.runeCountOutput(pull - 1):
+        await faith.send_message(message.channel, s)
+    await faith.send_message(message.channel, "That's all.")
 
 async def runeStats(message):
-    await faith.send_message(message.channel, "Runes NYI")
+    night = convo.getTopic(message.author, "log")
+    reply = random.choice(["Please give me a second.",
+                           "Working on it!"])
+    await faith.send_message(message.channel,
+            reply)
+    analysis = await night.nightPotionAnalysis()
+    for s in analysis:
+        await faith.send_message(message.channel, s)
+    await faith.send_message(message.channel, "That's all.")
 
 async def refreshLog(message):
     nID = convo.getTopic(message.author, "log").nightID
@@ -66,7 +121,7 @@ async def newLog(message):
     loc = message.content.find('warcraftlogs.com/reports/')
     try:
         if loc == -1:
-            night = Log.Night(Log.lastRaid)
+            night = Log.Night(Log.lastRaid())
         else:
             loc += len('warcraftlogs.com/reports/')
             night = Log.Night(message.content[loc:loc+16])
@@ -96,11 +151,21 @@ async def participants(message):
     return
 
 async def suggestion(message):
-    await faith.send_message(message.channel,
-            "Sorry, I can't handle suggestions yet.")
-
-def winStr(name, slot, piece):
-    return name.capitalize() + " won " + Tier.pToS(piece) + " " + slot + "."
+    if "I have a suggestion for Faith: " in message.content:
+        S = message.content
+        B = S[31:]
+        fileFaith = open("Faith.txt", "a+")
+        fileFaith.write(B + "\n")
+        fileFaith.close()
+        await Faith.send_message(message.channel,
+                                "File saved under Faith!")
+    else:
+        G = message.content
+        fileGuild= open("Suggestion.txt", "a+")
+        fileGuild.write(G + "\n")
+        fileGuild.close()
+        await Faith.send_message(message.channel,
+                                "File saved!")
 
 async def wonPiece(message):
     if message.author.id not in officers:
@@ -110,28 +175,24 @@ async def wonPiece(message):
     slot = Tier.getSlot(message.content)
     loc = message.content.find(":")
     if loc == -1:
-        #TODO
-        await faith.send_message(message.channel,
-                "This grammar/format is still in development. "
-                "Please use the : format.")
+        loc = message.content.lower().find("won")
+        #todo what if not found, is that possible
+        tokens = getTokens(message.content[0:loc])
     else:
         tokens = getTokens(message.content[loc:len(message.content)])
-        names = []
-        for t in tokens:
-            if t == "and":
-                continue #idiot-proof
-            name = Tier.getName(t)
-            if name == None:
-                await faith.send_message(message.channel, "Cannot find " + t)
-                continue
-            names.append(name)
-        for name in names:
-            issues = Tier.winIssues(name, slot, piece)
-            reply = "Recorded " + winStr(name, slot, piece)
-            if issues:
-                reply += " " + issues
-            await faith.send_message(message.channel, reply)
-        await Tier.award(names, slot, piece)
+    names = []
+    for t in tokens:
+        if t == "and":
+            continue #idiot-proof
+        name = Tier.getName(t)
+        if name == None:
+            await faith.send_message(message.channel, "Cannot find " + t)
+            continue
+        names.append(name)
+    for name in names:
+        await faith.send_message(message.channel,
+        	    Tier.winStr(name, slot, piece))
+    await Tier.award(names, slot, piece)
 
 async def undoWin(message):
     if message.author.id not in officers:
@@ -152,15 +213,20 @@ async def deletePiece(message):
         return
     slot = Tier.getSlot(message.content)
     tokens = getTokens(message.content)
+    name = None
     for i in range(1, len(tokens)):
         if tokens[i] == "s":
             name = Tier.getName(tokens[i-1])
+            break
+        if tokens[i-1] == "from":
+            name = Tier.getName(tokens[i])
+            break
     if name == None:
         await faith.send_message(message.channel, "Can't find the player.")
         return
     oldPieceDesc = await Tier.forceOverwrite(name, slot, None)
     await faith.send_message(message.channel,
-            "Deleted " + name.capitalize() + "s' "
+            "Deleted " + name.capitalize() + "'s "
             + oldPieceDesc + " " + slot + ".")
 
 async def tierCount(message):
@@ -175,7 +241,8 @@ async def tierCount(message):
             name = Tier.getName(tokens[i+1])
             break
     if name == None:
-        await faith.send_message(message.channel, "Player not found.")
+        await faith.send_message(message.channel,
+                "Sorry, I can't find them in my records...")
         return
 
     slot = Tier.getSlot(m)
@@ -225,11 +292,74 @@ async def raidEnd(message):
     Tier.currentRaid = None
     return
 
+async def updateRec(message):
+    await faith.send_message(message.channel,
+                "Ok, this could take a couple minutes.")
+    await faith.send_message(message.channel,
+                "Please be patient.")
+    await Tier.update()
+    await faith.send_message(message.channel,
+                "Done updating my tier records from armory.")
+
 async def newRaider(message):
-    await faith.send_message(message.channel, "NYI")
+    if message.author.id not in officers:
+        await faith.send_message(message.channel,
+        	    "Welcome to our raids! I'm not allowed to update "
+        	    "the records for you if you aren't an officer though.")
+        return
+    m = message.content
+    name = getQuoted(m)
+    if name == None:
+        if ":" in m:
+            s = m[m.find(':'), len(m)]
+            name = getTokens(s)[0]
+        else:
+            name = ""
+            tl = getTokens(m)
+            for i in range(len(tl) - 1):
+                if tl[i] == "named":
+                    name = tl[i+1]
+                    break
+    try:
+        await Tier.addPlayer(name)
+        await faith.send_message(message.channel,
+        	        "Welcome, " + name + "! I've added you to the records.")
+    except RuntimeError:
+        await faith.send_message(message.channel,
+        	        "Sorry, I can't add " + name + " to my records.")
+    return
+
+async def trade(message):
+    verbs = ["traded", "trades",
+        "gave", "gives"]
+    tl = getTokens(message.content.lower())
+    for v in verbs:
+        if v in tl:
+            vLoc = tl.index(v)
+            break
+    if vLoc == 0 or vLoc == len(tl) - 1:
+        await faith.send_messsge(message.channel,
+        	     "Sorry, I can't understand who traded.")
+        return
+    giver = Tier.getName(tl[vLoc - 1])
+    if "to" in tl:
+        oLoc = tl.index("to") + 1
+        if oLoc >= len(tl):
+            await faith.send_message(
+            	    "I'm sorry, I can't understand your grammar...")
+            return
+        taker = Tier.getName(tl[oLoc])
+    else:
+        taker = Tier.getName(tl[vLoc + 1])
+    if taker == None:
+        await faith.send_message(message.channel,
+        	    "Sorry, I can't understand who got that piece.")
+    for r in await Tier.trade(giver, taker):
+        await faith.send_message(message.channel, r)
+    return
 
 async def gquit(message):
-    faith.send_message(message.channel,
+    await faith.send_message(message.channel,
             ("That's too bad. "
             "I'll update my records next time when "
             "I look everyone up on the Armory."))
@@ -243,9 +373,27 @@ async def creator(message):
             ("Ethan and Doin taught me some basics to start with. "
                 "From now on, my creator will be all of you though!"))
 
-async def function(message):
+async def moreFunction(message):
+    f  = random.choice(FaithData.capabilities)
+    r1 = "Have I mentioned that I can " + f + "?"
+    r2 = "Umm... I can " + f + "."
+    r3 = "I can also " + f + "!"
+    convo.setReply(message.author, (lambda x: "else" in x.content),
+    	    moreFunction)
     await faith.send_message(message.channel,
-        FaithData.capabilities)
+        random.choice([r1, r2, r3]))
+
+async def function(message):
+    f1 = random.choice(FaithData.capabilities)
+    f2 = random.choice(FaithData.capabilities)
+    while f1 == f2:
+        f2 = random.choice(FaithData.capabilities)
+    r1 = "Umm... I can " + f1 + " and " + f2 +"?"
+    r2 = "To start with, I'm able to " + f1 + " and " + f2 + "..."
+    convo.setReply(message.author, (lambda x: "else" in x.content),
+    	    moreFunction)
+    await faith.send_message(message.channel,
+        random.choice([r1, r2]))
 
 async def define(message):
     mStr = message.content.lower()
@@ -301,7 +449,7 @@ async def statPri(message):
         await faith.send_message(message.channel,
                 "What class/spec are you playing?")
         convo.setReply(message.author,
-            ((lambda x: getSpec(x.content.lower()) != "unknown"), statPriReply))
+            (lambda x: getSpec(x.content.lower()) != "unknown"), statPriReply)
     else:
         iv = random.choice(["Icy Veins said \"",
                         "According to Icy Veins, \""])
@@ -322,7 +470,7 @@ async def neck(message):
         await faith.send_message(message.channel,
                 "What class/spec are you playing?")
         convo.setReply(message.author,
-            ((lambda x: getSpec(x.content.lower()) != "unknown"), neckReply))
+            (lambda x: getSpec(x.content.lower()) != "unknown"), neckReply)
     else:
         iv = random.choice(["Icy Veins said \"",
                         "According to Icy Veins, \""])
@@ -335,13 +483,24 @@ async def missingEnch(message):
 async def tour(message):
     await faith.send_message(message.channel, FaithData.tourScript)
 
+async def adminLogin(message):
+    convo.adminLogin(message.author)
+    await faith.send_message(message.channel,
+    	    "Welcome, Administrator " +
+    	    message.author.display_name +
+    	    	". I'm at your service.")
+
 async def musicBot(message):
     await faith.send_message(message.channel, "NYI")
 
 async def disengage(message):
+    m = message.content.lower()
     if ('thank' in message.content.lower()
             or message.content.lower().startswith('ty')):
         await faith.send_message(message.channel, "No problem!")
+    elif 'good night' in m:
+    	    await faith.send_message(message.channel,
+    	    	    "good night, " + address(message.author) + ".")
     elif ('never mind' in message.content.lower()
             or 'nothing' in message.content.lower()):
         await faith.send_message(message.channel, "Ok.")
