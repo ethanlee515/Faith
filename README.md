@@ -1,1 +1,1 @@
-Discord chatbot for the World of Warcraft Guild Unified-Madoran
+Discord chatbot for the WoW Guild Unified-Madoran/Dawnbringer
