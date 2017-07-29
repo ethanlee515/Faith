@@ -211,3 +211,9 @@ async def trade(gn, tn):
 
     undoHistory.append([a1, a2])
     return [rStr, wStr]
+
+
+def raidOver():
+    global currentRaid
+    currentRaid = None
+    undoHistory.clear()
