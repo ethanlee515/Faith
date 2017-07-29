@@ -10,15 +10,15 @@ def invoke(message):
     if not message.author.id == '190494385035673611':
         return False
     m = message.content.lower()
-    if not "your creator calls" in m:
+    if not ("your creator calls" in m or "come" in m):
         return False
-    lst = ["ideal", "song", "night",
-        "by the", "blossom", "despair"]
+    lst = ["ideal", "song", "night", "wretched", "war", "neverending",
+        "by the", "in the", "blossom", "despair"]
     c = 0
     for s in lst:
         if s in m:
             c += 1
-    return c >= 2
+    return c >= 3
 
 def attn(message):
     return convo.hasAttn(message.author)
@@ -143,6 +143,8 @@ def tierCount(message):
 def raidNight(message):
     return (all(key in message.content.lower()
                 for key in ["tonight", "raid"])
+            or all(key in message.content
+                for key in ["ToS", "raid"])
             or ("switching to" in message.content.lower()
                 and Tier.currentRaid != None))
 
@@ -164,7 +166,8 @@ def trade(message):
 def newRaider(message):
     m = message.content.lower()
     return (all(key in m for key in ["join", "us"])
-    	            or "new raider" in m)
+    	            or "new raider" in m
+                    or "new player" in m)
 
 def gquit(message):
     m = message.content.lower()
@@ -223,11 +226,17 @@ def adminLogin(message):
 
 def musicBot(message):
     return (convo.getTopic(message.author, "music") != None
-        or playSong(message))
+        or playSong(message)
+        or any(key in message.content.lower()
+            for key in ["music", "song"]))
 
 def playSong(message):
     m = message.content.lower()
     return ("play" in m and ("youtube" in m or getQuoted(m)))
+
+def skipSong(message):
+    return any(key in message.content.lower()
+            for key in ["skip", "next song"])
 
 def louder(message):
     return "louder" in message.content.lower()
@@ -242,6 +251,10 @@ def disengage(message):
 
     if ('thank' in message.content.lower()
             and len(message.content) < 15):
+        return True
+
+    if ('nite' in message.content.lower()
+            and len(message.content) < 6):
         return True
 
     if ("nothing" in message.content.lower()
@@ -259,7 +272,7 @@ def disengage(message):
                 "that is about it", "that is about all",
                 "that should be all", "that should be it",
                 "never mind", "nevermind", "nvm",
-                "good night"]
+                "good night", "good nite"]
 
     return any(key in message.content.lower()
                     for key in keywords)
