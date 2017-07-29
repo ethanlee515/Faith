@@ -38,6 +38,9 @@ async def playSong(message):
     convo.setTopic(message.author, "music", True)
     return
 
+async def skipSong(message):
+    await faith.send_message(faith.music, "!skip")
+
 async def louder(message):
     await faith.send_message(faith.music,
     	    "!volume +20")
@@ -82,8 +85,7 @@ async def potStats(message):
                            "Working on it!"])
     await faith.send_message(message.channel,
             reply)
-    analysis = await night.nightPotionAnalysis()
-    for s in analysis:
+    for s in await night.buffStats(Log.potions):
         await faith.send_message(message.channel, s)
     await faith.send_message(message.channel, "That's all.")
 
@@ -107,8 +109,7 @@ async def runeStats(message):
                            "Working on it!"])
     await faith.send_message(message.channel,
             reply)
-    analysis = await night.nightPotionAnalysis()
-    for s in analysis:
+    for s in await night.buffStats(Log.rune):
         await faith.send_message(message.channel, s)
     await faith.send_message(message.channel, "That's all.")
 
@@ -157,14 +158,14 @@ async def suggestion(message):
         fileFaith = open("Faith.txt", "a+")
         fileFaith.write(B + "\n")
         fileFaith.close()
-        await Faith.send_message(message.channel,
+        await faith.send_message(message.channel,
                                 "File saved under Faith!")
     else:
         G = message.content
         fileGuild= open("Suggestion.txt", "a+")
         fileGuild.write(G + "\n")
         fileGuild.close()
-        await Faith.send_message(message.channel,
+        await faith.send_message(message.channel,
                                 "File saved!")
 
 async def wonPiece(message):
@@ -230,7 +231,7 @@ async def deletePiece(message):
             + oldPieceDesc + " " + slot + ".")
 
 async def tierCount(message):
-    m = message.content
+    m = message.content.lower()
     tokens = getTokens(message.content)
     name = None
     for i in range(len(tokens)):
@@ -242,7 +243,7 @@ async def tierCount(message):
             break
     if name == None:
         await faith.send_message(message.channel,
-                "Sorry, I can't find them in my records...")
+                "Sorry, I can't get that name right...")
         return
 
     slot = Tier.getSlot(m)
@@ -289,7 +290,7 @@ async def raidEnd(message):
     reply = random.choice(["Good work tonight, and good night guys :)",
                             "Hope you guys had fun and got some gears!"])
     await faith.send_message(message.channel, reply)
-    Tier.currentRaid = None
+    Tier.raidOver()
     return
 
 async def updateRec(message):
@@ -320,13 +321,19 @@ async def newRaider(message):
                 if tl[i] == "named":
                     name = tl[i+1]
                     break
+    if name.lower() in Tier.rec:
+        await faith.send_message(message.channel,
+                name.capitalize() + " is already in the records.")
+        return
     try:
         await Tier.addPlayer(name)
         await faith.send_message(message.channel,
-        	        "Welcome, " + name + "! I've added you to the records.")
+        	        "Welcome, " + name.capitalize() +
+                    "! I've added you to the records.")
     except RuntimeError:
         await faith.send_message(message.channel,
-        	        "Sorry, I can't add " + name + " to my records.")
+        	        "Sorry, I can't add " + name
+                    + " to my records for some reasons.")
     return
 
 async def trade(message):
@@ -342,6 +349,10 @@ async def trade(message):
         	     "Sorry, I can't understand who traded.")
         return
     giver = Tier.getName(tl[vLoc - 1])
+    if giver == None:
+        await faith.send_message(message.channel,
+        	    "Sorry, I can't understand who gave that piece.")
+        return
     if "to" in tl:
         oLoc = tl.index("to") + 1
         if oLoc >= len(tl):
@@ -354,6 +365,7 @@ async def trade(message):
     if taker == None:
         await faith.send_message(message.channel,
         	    "Sorry, I can't understand who got that piece.")
+        return
     for r in await Tier.trade(giver, taker):
         await faith.send_message(message.channel, r)
     return
