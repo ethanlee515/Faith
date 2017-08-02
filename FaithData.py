@@ -17,16 +17,6 @@ capabilities = ["accept suggestions",
     "help you perform better in raids (soon)",
     "tell you about random things"]
 
-tourScript = ("Alright! Let me show you around! "
-        "We are already on our discord server. "
-        "We also have a very active Facebook group called "
-        "\"Unified Guild\" at "
-        "http://fb.com/groups/unifiedmadoran/. "
-        "The Orange and Legendary ranks in the guild are our "
-        "officers who can help you with any questions I'm unable "
-        "to answer. Also, we raid a lot. Make sure to ask me "
-        "about it if you're interested.")
-
 bankInfo = ("The higher in rank you are, the more things you'll "
             "be allowed to take from the guild bank. When you "
             "take something out, try to put something else in too. "
@@ -185,6 +175,8 @@ specAbbrevs = {"protection warrior": ["prot w", "protection w"],
     "marksmanship hunter": ["mm h", "marks"],
     "beast mastery hunter": ["bm", "beast"],
     "survival hunter": ["surv"],
+    "vengeance demon hunter": ["ven"],
+    "havoc demon hunter": ["havoc"],
     "affliction warlock": ["aff"],
     "destruction warlock": ["destr"],
     "demonology warlock": ["demo"],
@@ -196,9 +188,7 @@ specAbbrevs = {"protection warrior": ["prot w", "protection w"],
     "unholy death knight": ["unholy"],
     "brewmaster monk": ["bm", "brew"],
     "windwalker monk": ["ww", "wind"],
-    "mistweaver monk": ["mw", "mist"],
-    "vengeance demon hunter": ["ven"],
-    "havoc demon hunter": ["havoc"]}
+    "mistweaver monk": ["mw", "mist"]}
 
 officerIDs = ['219510574256488449',
             '229766287377563659',
