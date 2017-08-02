@@ -182,17 +182,20 @@ def extractPiece(m):
     return {"from": diff, "IL": il} if il > 0 else {"from": diff}
 
 async def update():
+    lst = []
     for name in list(rec.keys()):
         print("Updating " + name.capitalize() + "...")
         try:
             ti = await Armory.getTierPieces(name)
         except RuntimeError:
             del rec[name]
+            lst.append(name.capitalize())
             continue
         for s in ti:
             if overWrite(ti[s], rec[name][s]):
                 rec[name][s] = ti[s]
     await save()
+    return lst
 
 async def trade(gn, tn):
     h = searchHistory(gn)
