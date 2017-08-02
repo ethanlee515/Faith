@@ -6,6 +6,25 @@ from misc import *
 def isMessage(message):
     return not message.author.bot
 
+def affirmative(msg):
+    m = msg.content.lower()
+    return (any(key in getTokens(m)
+        for key in ["sure", "ok", "yes", "affirmative", "yea", "yeah",
+                "k", "kk", "yep", "yeap"])
+                or "of course" in m)
+
+def negative(msg):
+    return any(key in getTokens(msg.content.lower())
+        for key in ["not", "no", "nah", "negative", "nope"])
+
+def confirmation(msg):
+    return (affirmative(msg)
+        or any(key in msg.content.lower()
+            for key in ["next", "move on", "tell me"]))
+
+def binary(msg):
+    return affirmative(msg) or negative(msg)
+
 def invoke(message):
     if not message.author.id == '190494385035673611':
         return False
@@ -35,8 +54,9 @@ def silence(message):
                 "t asking you", "t talking to you",
                 "fk off", "fuck off", "stfu"]
 
-    return any(key in message.content.lower()
+    return (any(key in message.content.lower()
                     for key in keywords)
+            or message.content.lower() == "stop")
 
 def log(message):
     return (convo.getTopic(message.author, "log") != None
@@ -109,10 +129,16 @@ def participants(message):
                     "participat"])
 
 def suggestion(message):
-    return 'suggest' in message.content.lower()
+    m = message.content.lower()
+    return ('suggest' in m
+            or 'can we' in m
+            or 'could we' in m
+            or "why don't we" in m)
 
-def mentionsTier(message):
-    return 'tier' in message.content.lower() or Tier.currentRaid != None
+def mentionsTier(msg):
+    return (Tier.currentRaid != None
+        or any(key in msg.content.lower()
+            for key in ["tier", "heroic", "LFR", "normal", "mythic"]))
 
 def wonPiece(message):
     return (Tier.getSlot(message.content)
@@ -175,10 +201,9 @@ def gquit(message):
         or all(key in m for key in ["left", "guild"])
         or all(key in m for key in ["quit", "guild"]))
 
-def introduce(message):
-    return (("introduc" in message.content.lower()
-                and "you" in message.content)
-            or ("who are you" in message.content.lower()))
+def introduce(msg):
+    m = msg.content.lower()
+    return ("you" in m and ("introduc" in m or define(msg) or 'who' in m))
 
 def creator(message):
     return ("who created you" in message.content.lower()
@@ -186,7 +211,7 @@ def creator(message):
                 or "who made you" in message.content.lower())
 
 def function(message):
-    keywords = ["what can you do",
+    keywords = ["what can you do", "readme",
                 "help", "what are you able to do"]
     return any(key in message.content.lower()
                 for key in keywords)
@@ -238,6 +263,13 @@ def skipSong(message):
     return any(key in message.content.lower()
             for key in ["skip", "next song"])
 
+def stopMusic(msg):
+    m = msg.content.lower()
+    return "pause" in m or all(key in m for key in ["stop", "music"])
+
+def resumeMusic(msg):
+    return "resume" in msg.content.lower()
+
 def louder(message):
     return "louder" in message.content.lower()
 
@@ -272,7 +304,7 @@ def disengage(message):
                 "that is about it", "that is about all",
                 "that should be all", "that should be it",
                 "never mind", "nevermind", "nvm",
-                "good night", "good nite"]
+                "good night", "good nite", "goodbye"]
 
     return any(key in message.content.lower()
                     for key in keywords)
