@@ -1,5 +1,6 @@
 import requests
 import asyncio
+from misc import *
 from datetime import datetime
 session = requests.Session()
 url = "https://www.warcraftlogs.com:443/v1/"
@@ -101,23 +102,14 @@ class Night():
         for p in lst:
             nLst.append(self.pDict[p])
         nLst.sort()
-        if len(nLst) == 1:
-            return nLst[0]
-        if len(nLst) == 2:
-            return nLst[0] + " and " + nLst[1]
-        s = ""
-        i = 0
-        for i in range(len(nLst) - 1):
-            s += (nLst[i] + ", ")
-        s += ("and " + nLst[-1])
-        return s
+        return ppStrLst(nLst)
 
     def raidMembers(self):
-        pIDLst = []
+        nLst = []
         for pID in self.pDict:
-            pIDLst.append(pID)
-        return ("People who attended that night were " +
-            self.ppLst(pIDLst))
+            nLst.append(self.pDict[pID])
+        nLst.sort()
+        return nLst
 
     def buffCounts(self, bLst, pull = -1):
         dLst = self.dpsLst(pull)
