@@ -5,10 +5,14 @@ import FaithData
 import Tier
 import Armory
 import Log
+import check
 from misc import *
 from datetime import datetime
 
 async def playSong(message):
+    if message.channel == faith.music:
+        return
+
     c = message.author.voice.voice_channel
     if c == None:
         await faith.send_message(message.channel,
@@ -42,12 +46,16 @@ async def skipSong(message):
     await faith.send_message(faith.music, "!skip")
 
 async def louder(message):
-    await faith.send_message(faith.music,
-    	    "!volume +20")
+    await faith.send_message(faith.music, "!volume +10")
 
 async def quieter(message):
-    await faith.send_message(faith.music,
-    	    "!volume -20")
+    await faith.send_message(faith.music, "!volume -10")
+
+async def stopMusic(msg):
+    await faith.send_message(faith.music, "!pause")
+
+async def resumeMusic(msg):
+    await faith.send_message(faith.music, "!resume")
 
 async def silence(message):
     await faith.send_message(message.channel,
@@ -148,25 +156,18 @@ async def pullNum(message):
 async def participants(message):
     night = convo.getTopic(message.author, "log")
     await faith.send_message(message.channel,
-        night.raidMembers())
+        ppStrLst(night.raidMembers()))
     return
 
 async def suggestion(message):
-    if "I have a suggestion for Faith: " in message.content:
-        S = message.content
-        B = S[31:]
-        fileFaith = open("Faith.txt", "a+")
-        fileFaith.write(B + "\n")
-        fileFaith.close()
-        await faith.send_message(message.channel,
-                                "File saved under Faith!")
-    else:
-        G = message.content
-        fileGuild= open("Suggestion.txt", "a+")
-        fileGuild.write(G + "\n")
-        fileGuild.close()
-        await faith.send_message(message.channel,
-                                "File saved!")
+    G = message.content
+    fileGuild= open("Suggestion.txt", "a+")
+    fileGuild.write(G + "\n")
+    fileGuild.close()
+    reply = random.choice(["I'll remember that!",
+                        "Thanks for the suggestion!",
+                        "I'll let the officers know that."])
+    await faith.send_message(message.channel, reply)
 
 async def wonPiece(message):
     if message.author.id not in officers:
@@ -298,9 +299,15 @@ async def updateRec(message):
                 "Ok, this could take a couple minutes.")
     await faith.send_message(message.channel,
                 "Please be patient.")
-    await Tier.update()
+    lst = await Tier.update()
     await faith.send_message(message.channel,
                 "Done updating my tier records from armory.")
+    if len(lst) > 0:
+        s = lst[0]
+        for i in range(1, len(lst)):
+            s += ", " + lst[i]
+        await faith.send_message(faith.adminChat,
+            ("Automatically removed %s from the records." % ppStrLst(lst)))
 
 async def newRaider(message):
     if message.author.id not in officers:
@@ -345,7 +352,7 @@ async def trade(message):
             vLoc = tl.index(v)
             break
     if vLoc == 0 or vLoc == len(tl) - 1:
-        await faith.send_messsge(message.channel,
+        await faith.send_message(message.channel,
         	     "Sorry, I can't understand who traded.")
         return
     giver = Tier.getName(tl[vLoc - 1])
@@ -409,43 +416,10 @@ async def function(message):
 
 async def define(message):
     mStr = message.content.lower()
-    if 'facebook' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.definitions['Facebook'])
-    elif 'bank' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.bankInfo)
-    elif 'guild' in mStr or 'unified' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.definitions['Unified'])
-    elif 'hanabi' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.definitions['Hanabi'])
-    elif 'ethan' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.definitions['Ethan'])
-    elif 'stus' in mStr or 'about doin' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.definitions['Doin'])
-    elif 'danny' in mStr or 'yaois' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.definitions['Danny'])
-    elif 'my rank' in mStr:
-        await faith.send_message(message.channel,
-                        ("Our raiders' ranks are "
-                         "posted on our Facebook group."))
-    elif 'rank' in mStr or 'loot' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.definitions['Rank'])
-    elif 'raid' in mStr:
-        await faith.send_message(message.channel,
-                          FaithData.definitions['Raid'])
-    elif 'about you' in mStr:
-        await introduce(message)
-    elif (('stat' in mStr and 'pri' in mStr) or 'stats' in mStr):
-        await statPri(message)
-    elif 'neck ench' in mStr:
-        await neck(message)
+    for key in FaithData.definitions:
+        if key in mStr:
+            await faith_send_message(FaithData.definitions[key])
+            return
     else:
         await faith.send_message(message.channel,
                  "Sorry, I don't have any information on that.")
@@ -492,8 +466,81 @@ async def neck(message):
 async def missingEnch(message):
     await faith.send_message(message.channel, "NYI")
 
-async def tour(message):
-    await faith.send_message(message.channel, FaithData.tourScript)
+async def tour(msg):
+    await faith.send_message(msg.channel,
+        "Hello! My name is Faith, and I'm your tour guide today. "
+        "Are you ready?")
+    convo.setReply(msg.author, check.binary, tour1)
+    return
+
+async def tour1(msg):
+    if check.negative(msg):
+        await faith.send_message(msg.channel,
+            "Sorry! I must've misunderstood.")
+        convo.clearReply(msg.author)
+        return
+    await faith.send_message(msg.channel,
+            "Ok! The most interesting thing is our in-game calendar. "
+            "All guild events are posted on there. If you have event "
+            "ideas, please let me or the officers know after this tour! "
+            "Ready to move on?")
+    convo.setReply(msg.author, check.confirmation, tour2)
+
+async def tour2(msg):
+    await faith.send_message(msg.channel,
+            "Our raid team is around 5th in horde on our server. "
+            "We're always looking for more raiders! "
+            "Do you want to hear about our raids?")
+    convo.setReply(msg.author, check.binary, tour3)
+
+async def tour3(msg):
+    if check.negative(msg):
+        await tour4(msg)
+    else:
+        await tourR(msg)
+    return
+
+async def tourR(msg):
+    await faith.send_message(msg.channel,
+        "Check the in-game calendar for raid times and requirements. "
+        "Our Friday nights have the lowest requirements so that's "
+        "usually a great place to start.")
+    convo.setReply(msg.author, check.confirmation, tourR1)
+
+async def tourR1(msg):
+    await faith.send_message(msg.channel,
+        "We distribute loots using a rank system that's based on both "
+        "performance and participation. "
+        "For more details, see <#274725221041307649>.")
+    convo.setReply(msg.author, check.confirmation, tourR2)
+
+async def tourR2(msg):
+    await faith.send_message(msg.channel,
+        "We do bench underperforming members when we struggle against a boss. "
+        "If you're benched, please don't take it personally. You're always "
+        "welcomed to come back for the very next raid. "
+        "That's about it for raids!")
+    convo.setReply(msg.author, check.confirmation, tour4)
+
+async def tour4(msg):
+    await faith.send_message(msg.channel,
+        "Our guild bank is free for all. If you want something that "
+        "you can't take out, please let an officer (orange rank and above) "
+        "know! Try to donate when you take something out though.")
+    convo.setReply(msg.author, check.confirmation, tour5)
+
+async def tour5(msg):
+    await faith.send_message(msg.channel,
+        "We try to live up to our name and be a home of casuals and raiders "
+        "alike, just like we've been doing in the last 7 years. "
+        "Welcome to our guild!")
+    convo.setReply(msg.author,
+        (lambda x: "thank" in x.content.lower()),
+        tour6)
+
+async def tour6(msg):
+    await faith.send_message(msg.channel, "Hope you enjoyed the tour!")
+    convo.clearReply(msg.author)
 
 async def adminLogin(message):
     convo.adminLogin(message.author)
@@ -502,19 +549,14 @@ async def adminLogin(message):
     	    message.author.display_name +
     	    	". I'm at your service.")
 
-async def musicBot(message):
-    await faith.send_message(message.channel, "NYI")
-
 async def disengage(message):
     m = message.content.lower()
-    if ('thank' in message.content.lower()
-            or message.content.lower().startswith('ty')):
+    if (m.startswith('thank') or m.startswith('ty ') or m == "ty"):
         await faith.send_message(message.channel, "No problem!")
     elif 'good night' in m:
     	    await faith.send_message(message.channel,
-    	    	    "good night, " + address(message.author) + ".")
-    elif ('never mind' in message.content.lower()
-            or 'nothing' in message.content.lower()):
+    	    	    "Good night, " + address(message.author) + ".")
+    elif 'never mind' in m or 'nothing' in m:
         await faith.send_message(message.channel, "Ok.")
     else:
         await faith.send_message(message.channel,
