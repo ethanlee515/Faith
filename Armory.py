@@ -66,3 +66,21 @@ async def getTierPieces(name):
         for slot in slots:
             ans[slot] = await getTierInfo(items, slot)
         return ans
+
+async def printAllPieces(name):
+    realm = await getRealm(name)
+    async with session.get(url + "character/"
+            + realm + "/" + name,
+            params = {"apikey": apikey, "fields": "items", "locale": "en_US"}
+            ) as resp:
+        items = (await resp.json())
+        pp = pprint.PrettyPrinter(indent = 4)
+        pp.pprint(items)
+
+async def missingGemsCount(name):
+    realm = await getRealm(name)
+    async with session.get(url + "character/"
+            + realm + "/" + name,
+            params = {"apikey": apikey, "fields": "audit", "locale": "en_US"}
+            ) as resp:
+        return (await resp.json())["audit"]["emptySockets"]
