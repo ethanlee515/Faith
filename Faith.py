@@ -56,6 +56,9 @@ convoFlow = (check.isMessage, [
         (check.adminLogin, react.adminLogin),
         (check.musicBot, [
             (check.playSong, react.playSong),
+            (check.skipSong, react.skipSong),
+            (check.stopMusic, react.stopMusic),
+            (check.resumeMusic, react.resumeMusic),
             (check.louder, react.louder),
             (check.quieter, react.quieter)
         ]),
@@ -86,6 +89,7 @@ class Faith(discord.Client):
     async def on_ready(self):
         print("Yawn... Good morning?\n")
         self.music = self.get_channel('299411775835734016')
+        self.adminChat = self.get_channel('239909252804771841')
         self.vchannel = None
         return
 
@@ -94,4 +98,4 @@ class Faith(discord.Client):
 
 faith = Faith()
 react.faith = faith
-faith.run("MzI4NjM2MDE5ODYxNjE4Njk5.DEl3aA.2jEbSVBxvHFfadgkWE8yyZvNBDE")
+faith.run("MzI4NjM2MDE5ODYxNjE4Njk5.DF6tzA.gHMihRNP4slzj8ikBlbTqoIiZ2w")
