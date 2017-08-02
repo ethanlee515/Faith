@@ -77,3 +77,14 @@ def getQuoted(s):
                 return s[first+1:i]
             else:
                 first = i
+
+def ppStrLst(lst):
+    if len(lst) == 1:
+        return lst[0]
+    if len(lst) == 2:
+        return lst[0] + " and " + lst[1]
+    s = ""
+    for i in range(len(lst) - 1):
+        s += (lst[i] + ", ")
+    s += ("and " + lst[-1])
+    return s
