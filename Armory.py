@@ -38,7 +38,6 @@ async def getRealm(name):
         return "Madoran"
     if d:
         return "Dawnbringer"
-    print(name + " isn't in either realm.")
     raise RuntimeError("Toon not found")
 
 difficulties = {"raid-finder": "LFR",
