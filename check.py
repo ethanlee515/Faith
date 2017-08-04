@@ -230,7 +230,7 @@ def statPri(message):
 
 def relic(message):
     return ("relic" in message.content.lower()
-        and getSpec(message.content) != "unknown")
+        and (getSpec(message.content) or getRelic(message.content)))
 
 def neck(message):
     m = message.content.lower()
