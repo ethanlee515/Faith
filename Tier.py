@@ -184,7 +184,6 @@ def extractPiece(m):
 async def update():
     lst = []
     for name in list(rec.keys()):
-        print("Updating " + name.capitalize() + "...")
         try:
             ti = await Armory.getTierPieces(name)
         except RuntimeError:
