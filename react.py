@@ -431,11 +431,11 @@ async def statPriReply(message):
 
 async def statPri(message):
     spec = getSpec(message.content.lower())
-    if spec == "unknown":
+    if not spec:
         await faith.send_message(message.channel,
                 "What class/spec are you playing?")
         convo.setReply(message.author,
-            (lambda x: getSpec(x.content.lower()) != "unknown"), statPriReply)
+            (lambda x: getSpec(x.content.lower())), statPriReply)
     else:
         iv = random.choice(["Icy Veins said \"",
                         "According to Icy Veins, \""])
@@ -443,8 +443,16 @@ async def statPri(message):
                 iv + FaithData.statprios[spec] + "\".")
 
 async def relic(message):
-    await faith.send_message(message.channel,
-        FaithData.specRelics[getSpec(message.content)])
+    r = getRelic(message.content)
+    if r:
+        specs = []
+        for spec in FaithData.specRelics:
+            if r in FaithData.specRelics[spec]:
+                specs.append(spec)
+        await faith.send_message(message.channel, ppStrLst(specs))
+    else:
+        await faith.send_message(message.channel,
+            FaithData.specRelics[getSpec(message.content)])
 
 async def neckReply(message):
     await neck(message)
@@ -452,11 +460,11 @@ async def neckReply(message):
 
 async def neck(message):
     spec = getSpec(message.content.lower())
-    if spec == "unknown":
+    if not spec:
         await faith.send_message(message.channel,
                 "What class/spec are you playing?")
         convo.setReply(message.author,
-            (lambda x: getSpec(x.content.lower()) != "unknown"), neckReply)
+            (lambda x: getSpec(x.content.lower())), neckReply)
     else:
         iv = random.choice(["Icy Veins said \"",
                         "According to Icy Veins, \""])
