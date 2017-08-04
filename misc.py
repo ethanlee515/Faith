@@ -5,7 +5,18 @@ def getSpec(m):
     for spec in FaithData.specAbbrevs:
         if any(abbr in m for abbr in FaithData.specAbbrevs[spec]):
             return spec
-    return "unknown"
+    return None
+
+relics = ["arcane", "blood", "fel", "fire", "frost", "holy",
+    "iron", "life", "shadow", "storm"]
+
+def getRelic(m):
+    m = m.lower()
+    loc = m.find("relic")
+    lst = getTokens(m[0:loc])
+    if len(lst) != 0 and lst[-1] in relics:
+        return lst[-1]
+    return None
 
 def getNum(s):
     seen = False
