@@ -10,6 +10,7 @@ convoFlow = (check.isMessage, [
     (check.attn, [
         (check.reply, react.reply),
         (check.silence, react.silence),
+        (check.suggestion, react.suggestion),
         (check.log, [
             (check.closeLog, react.closeLog),
             (check.potion, [
@@ -30,7 +31,6 @@ convoFlow = (check.isMessage, [
             ]),
             (check.participants, react.participants)
         ]),
-        (check.suggestion, react.suggestion),
         (check.newRaider, react.newRaider),
         (check.mentionsTier, [
             (check.wonPiece, react.wonPiece),
