@@ -236,8 +236,9 @@ def neck(message):
     m = message.content.lower()
     return 'ench' in m and 'neck' in m
 
-def missingEnch(message):
-    pass
+def missingEnch(msg):
+    m = msg.content.lower()
+    return "missing" in m and ("gem" in m or "ench" in m)
 
 def tour(message):
     keywords = ["tour", "show me around", "show us around"]
