@@ -414,11 +414,11 @@ async def function(message):
     await faith.send_message(message.channel,
         random.choice([r1, r2]))
 
-async def define(message):
-    mStr = message.content.lower()
-    for key in FaithData.definitions:
-        if key in mStr:
-            await faith_send_message(FaithData.definitions[key])
+async def define(msg):
+    mStr = msg.content.lower()
+    for keyLst in FaithData.definitions:
+        if any(key in mStr for key in keyLst):
+            await faith.send_message(msg.channel, FaithData.definitions[keyLst])
             return
     else:
         await faith.send_message(message.channel,
@@ -449,7 +449,8 @@ async def relic(message):
         for spec in FaithData.specRelics:
             if r in FaithData.specRelics[spec]:
                 specs.append(spec)
-        await faith.send_message(message.channel, ppStrLst(specs))
+        reply = ppStrLst(specs).capitalize() + "."
+        await faith.send_message(message.channel, reply)
     else:
         await faith.send_message(message.channel,
             FaithData.specRelics[getSpec(message.content)])
@@ -471,8 +472,24 @@ async def neck(message):
         await faith.send_message(message.channel,
                 iv + FaithData.neckenchs[spec] + "\".")
 
-async def missingEnch(message):
-    await faith.send_message(message.channel, "NYI")
+async def missingEnch(msg):
+    tLst = getTokens(msg.content)
+    name = getQuoted(msg.content)
+    if not name:
+        index = listIndex(tLst, "missing")
+        if index > 0:
+            name = Tier.getName(tLst[index-1])
+    if name:
+        await faith.send_message(msg.channel,
+            "missing gem: %d" % await Armory.missingGemsCount(name))
+        eLst = await Armory.missingEnch(name)
+        if len(eLst) == 0:
+            await faith.send_message(msg.channel, "Fully enchanted.")
+        else:
+            await faith.send_message(msg.channel,
+                "Missing ench: " + ppStrLst(eLst))
+    else:
+        await faith.send_message(message.channel, "Can't parse name or NYI.")
 
 async def tour(msg):
     await faith.send_message(msg.channel,
