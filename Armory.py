@@ -21,8 +21,8 @@ async def isTier(itemID):
 
 async def inGuild(name, realm):
     async with session.get(url + "character/" + realm + "/" + name,
-        params = {"apikey": apikey, "fields": "guild", "locale": "en_US"}
-        ) as resp:
+            params = {"apikey": apikey, "fields": "guild", "locale": "en_US"}
+            ) as resp:
         if resp.status >= 400:
             return False
         r = await resp.json()
@@ -66,15 +66,21 @@ async def getTierPieces(name):
             ans[slot] = await getTierInfo(items, slot)
         return ans
 
-async def printAllPieces(name):
+enchantables = ["back", "finger1", "finger2", "neck"]
+
+async def missingEnch(name):
     realm = await getRealm(name)
     async with session.get(url + "character/"
             + realm + "/" + name,
             params = {"apikey": apikey, "fields": "items", "locale": "en_US"}
             ) as resp:
-        items = (await resp.json())
-        pp = pprint.PrettyPrinter(indent = 4)
-        pp.pprint(items)
+        items = (await resp.json())["items"]
+        ans = []
+        for slot in enchantables:
+            if (slot not in items
+                    or 'enchant' not in items[slot]["tooltipParams"]):
+                ans.append(slot)
+        return ans
 
 async def missingGemsCount(name):
     realm = await getRealm(name)
@@ -83,3 +89,8 @@ async def missingGemsCount(name):
             params = {"apikey": apikey, "fields": "audit", "locale": "en_US"}
             ) as resp:
         return (await resp.json())["audit"]["emptySockets"]
+
+# loop = asyncio.get_event_loop()
+# print(loop.run_until_complete(missingEnch("Nyxstus")))
+# session.close()
+# loop.close()
