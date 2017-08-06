@@ -29,8 +29,9 @@ convoFlow = (check.isMessage, [
                 (check.pullDesc, react.pullDesc),
                 (check.pullNum, react.pullNum)
             ]),
-            (check.participants, react.participants)
+            (check.participants, react.participants),
         ]),
+        (check.missingEnch, react.missingEnch),
         (check.newRaider, react.newRaider),
         (check.mentionsTier, [
             (check.wonPiece, react.wonPiece),
@@ -50,7 +51,6 @@ convoFlow = (check.isMessage, [
         (check.statPri, react.statPri),
         (check.relic, react.relic),
         (check.neck, react.neck),
-        (check.missingEnch, react.missingEnch),
         (check.tour, react.tour),
         (check.define, react.define),
         (check.adminLogin, react.adminLogin),
