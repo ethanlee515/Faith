@@ -1,5 +1,11 @@
 import FaithData
 
+def listIndex(lst, item):
+    try:
+        return lst.index(item)
+    except ValueError:
+        return -1
+
 def getSpec(m):
     m = m.lower()
     for spec in FaithData.specAbbrevs:
