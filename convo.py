@@ -2,7 +2,6 @@ ACTIVE = 4
 PASSIVE = 3
 
 convos = {}
-admins = []
 
 async def tick(message):
     if getReply(message.author):
@@ -12,14 +11,12 @@ async def tick(message):
             removeTopic(message.author, "replyMemSpan")
         else:
            setTopic(message.author, "replyMemSpan", rMem - 1)
-    for i in list(convos.keys()):
-        if i in admins:
-            continue
+    for i in list(convos.keys()): #Otherwise can't delete while iterating
         if convos[i]["attn"] <= 0:
             del convos[i]
-        else:
+        elif "admin" not in convos[i]:
             convos[i]["attn"] -= 1
-    if message.author.id in admins:
+    if getTopic(message.author, "admin"):
         return
     if 'Faith' in message.content:
         setActive(message.author)
@@ -27,7 +24,7 @@ async def tick(message):
         convos[message.author.id] = {"attn": 0}
 
 def setState(person, state):
-    if person not in convos:
+    if person.id not in convos:
         convos[person.id] = {"attn": state}
     else:
         convos[person.id]["attn"] = state
@@ -42,6 +39,8 @@ def setTopic(person, topic, content):
     convos[person.id][topic] = content
 
 def getTopic(person, topic):
+    if person.id not in convos:
+        return None
     if topic in convos[person.id]:
         return convos[person.id][topic]
 
@@ -77,7 +76,7 @@ def isActive(person):
         return convos[person.id]["attn"] >= ACTIVE
 
 def grabAttn(person):
-    if person.id in admins:
+    if getTopic(person, "admin"):
         return
     convos[person.id]["attn"] = ACTIVE + 1
 
@@ -87,5 +86,5 @@ async def refreshAttn(message):
         convos[person.id]["attn"] = PASSIVE
 
 def adminLogin(person):
-    admins.append(person.id)
+    setTopic(person, "admin", True)
     setPassive(person)
