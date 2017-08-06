@@ -25,44 +25,44 @@ bankInfo = ("The higher in rank you are, the more things you'll "
             "If you need something you aren't able to take, "
             "talk to an officer.")
 
-definitions = {"Unified":
-                ("We're a casual raiding guild that's been serving "
-                 "Madoran and Dawnbringer ever since they've merged. "
-                 "We hope to live up to our name and provide a "
-                 "welcoming environment for casuals and raiders alike. "
-                 "Feel free to ask me for a short tour!"),
-               "Ethan":
-                ("Master Ethan is a master of both automata and illusions."),
-               "Hanabi":
+definitions = {("ethan",):
+                ("Master Ethan is a master of automata and illusions."),
+               ("hanabi",):
                 ("Hanabi is my sister. She's also a bot but "
                 "she's very different from me. Soon we'll "
                 "serve in the Unified discord server together. "
                 "I hope you'll meet her soon!"),
-               "Doin":
+               ("doin",):
                 ("Sire Stus is one of the few "
                  "who have seen my source code and taught me "
-                 "directly. I've learned a lot from him."),
-               "Facebook":
+                 "directly."),
+               ("facebook",):
                 ("We have an active guild Facebook group. It's "
                  "called \"Unified Guild\". Here's the link: "
                  "http://fb.com/groups/unifiedmadoran/"),
-               "Danny":
+               ("danny",):
                 ("Lord Yaois is our guild master and raid leader. "
                  "Ethan thinks he's a charismatic leader who "
                  "inspires loyalty."),
-               "Rank":
+               ("rank",):
                 ("Our loots are distributed using a rank "
                  "system that's based on both attendance and "
                  "performance. It's based on a strict points system "
                  "so there's no favorism. The details are in the pdf "
                  "in the #raid_loot_info channel."),
-               "Raid":
+               ("raid",):
                 ("Our raids are posted on the calendar with "
                  "weapon traits and item level requirements. "
                  "We have a open-door policy, so please "
                  "feel free to sign up and join us!"
                  "We have a special loot distribution/ranking system "
-                 "though, so make sure to ask me about it sometimes.")
+                 "though, so make sure to ask me about it sometimes."),
+                ("unified", "guild",):
+                 ("We're a casual raiding guild that's been serving "
+                  "Madoran and Dawnbringer ever since they've merged. "
+                  "We hope to live up to our name and provide a "
+                  "welcoming environment for casuals and raiders alike. "
+                  "Feel free to ask me for a short tour!")
                }
 
 statprios = {"protection warrior": "str > haste > mast >= vers > crit",
