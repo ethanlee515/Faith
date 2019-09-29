@@ -12,7 +12,7 @@ TODO I don't think anyone will run this anyways...
 
 ## Functionalities
 
-* Conversational/attention system. Grab her attention by calling her name. There are "active" and "passive" types of attention, depending on if you've just called her name. There's also "administrator" attention that's only available to guild officers, which lasts indefinitely. Attention is lost when enough messages have passed or when you end the conversation with her with phrases such as ``that's all" or ``dismissed".
+* Conversational/attention system. Grab her attention by calling her name. There are "active" and "passive" types of attention, depending on if you've just called her name. There's also "administrator" attention that's only available to guild officers, which lasts indefinitely. Attention is lost when enough messages have passed or when you end the conversation with her with phrases such as "that's all" or "dismissed".
 * Gives simple tour of the guild (i.e. shows Facebook group)
 * Stats priority (doesn't automatically update, unfortunately)
 * Simple warcraftlogs analysis
