@@ -17,7 +17,7 @@ TODO I don't think anyone will run this anyways...
 * Gives simple tour of the guild (i.e. shows Facebook group)
 * Gives itemization suggestions
 	* Tells you your stats priority (unfortunately need to be manually updated from patch to patch)
-	* Checks your character from WoW armory for missing gems/enchants
+	* Checks your character on WoW armory for missing gems/enchants
 * Simple warcraftlogs analysis
 	* Potion count
 	* Runes count
