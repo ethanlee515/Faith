@@ -98,4 +98,6 @@ class Faith(discord.Client):
 
 faith = Faith()
 react.faith = faith
-faith.run("MzI4NjM2MDE5ODYxNjE4Njk5.DF6tzA.gHMihRNP4slzj8ikBlbTqoIiZ2w")
+f = open("token.txt")
+token = f.readline().strip()
+faith.run(token)
