@@ -9,6 +9,7 @@ No longer maintained.
 TODO I don't think anyone will run this anyways...
 * A bunch of python3 libraries... It's probably not too hard to find out just by repeatly trying to run the project and pip install what's missing.
 * A bot token from Discord
+* `python3 Faith.py`
 
 ## Functionalities
 
